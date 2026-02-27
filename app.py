@@ -39,7 +39,7 @@ st.markdown("""
 # -------------------------
 # Load Model
 # -------------------------
-rf = joblib.load("C:/Users/hp/Desktop/4th sem/AI_Training/Projects/Udaai_adhaar/models/rf_model_new.pkl")
+rf = joblib.load("models/rf_model_new.pkl")
 le = joblib.load("models/district_encoder.pkl")
 
 # -------------------------
