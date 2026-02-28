@@ -75,7 +75,7 @@ if section == "📊 Dashboard":
     st.subheader("Enrollment Trend Over Time")
     st.line_chart(daily_trend, x="date", y="total_enrollment")
 
-elif section == "📈 State Analysis":
+elif section == "📈 Analysis":
     st.title("📈 State-Level Analysis")
 
     # Select State
