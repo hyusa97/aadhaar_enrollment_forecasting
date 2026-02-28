@@ -77,7 +77,44 @@ if section == "📊 Dashboard":
 
 elif section == "📈 State Analysis":
     st.title("📈 State-Level Analysis")
-    st.write("State comparison charts will appear here.")
+
+    # Select State
+    selected_state = st.selectbox(
+        "Select a State",
+        sorted(df['state'].unique())
+    )
+
+    state_df = df[df['state'] == selected_state]
+
+    st.divider()
+
+    # Total Enrollment for State
+    total_state = state_df['total_enrollment'].sum()
+    st.metric(f"Total Enrollment in {selected_state}", f"{total_state:,.0f}")
+
+    st.divider()
+
+    # District-wise totals inside state
+    district_totals = (
+        state_df.groupby('district')['total_enrollment']
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    st.subheader("District-wise Enrollment Distribution")
+    st.bar_chart(district_totals)
+
+    st.divider()
+
+    # Time trend for selected state
+    state_trend = (
+        state_df.groupby('date')['total_enrollment']
+        .sum()
+        .sort_index()
+    )
+
+    st.subheader("Enrollment Trend Over Time")
+    st.line_chart(state_trend)
 
 elif section == "🧠 Forecasting":
     st.title("🧠 District Forecasting")
