@@ -139,7 +139,7 @@ Select month 4. Receive instant prediction
 
 ### Deployment Optimization
 
-Initial model exceeded GitHub's 100MB limit.
+Initial model exceeded GitHub's 50MB limit.
 
 Solution: - Reduced number of trees - Limited tree depth - Applied
 joblib compression
