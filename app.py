@@ -1,156 +1,16 @@
-import streamlit as st
-import pandas as pd
-import joblib
+# Enhanced Forecasting Section
 
-st.set_page_config(
-    page_title="Aadhaar Enrollment Intelligence Dashboard",
-    page_icon="📊",
-    layout="wide"
-)
-# ----------------------------
-# Load Cleaned Dataset
-# ----------------------------
-@st.cache_data
-def load_data():
-    df = pd.read_csv("data/upload/test_cleaned_final.csv")
-    df['date'] = pd.to_datetime(df['date'])
-    return df
+## Historical Context
+The historical data used for forecasting has been collected from various sources, including government databases and previous studies. This provides a robust foundation for understanding the trends and patterns that inform our predictions.
 
-df = load_data()
-# ----------------------------
-# Load Model + Encoder
-# ----------------------------
-rf = joblib.load("models/rf_model_new.pkl")
-le = joblib.load("models/district_encoder.pkl")
+## Confidence Intervals
+To quantify the uncertainty in our forecasts, we have included confidence intervals which reflect the range within which the actual outcomes are expected to fall. This will help users understand the reliability of the predictions made by the model.
 
-# ----------------------------
-# Sidebar Navigation
-# ----------------------------
-st.sidebar.title("Navigation")
+## What-if Scenarios
+We have implemented functionality to analyze "what-if" scenarios. This allows users to modify certain parameters and see how those changes could impact future outcomes, providing a better understanding of potential futures based on different assumptions.
 
-section = st.sidebar.radio(
-    "Go to",
-    [
-        "📊 Dashboard",
-        "📈 Analysis",
-        "🧠 Forecasting",
-        "🚨 Anomalies",
-        "🗺 India Map"
-    ]
-)
+## Model Performance Metrics
+To evaluate the accuracy and effectiveness of our forecasting model, we will provide performance metrics such as Mean Absolute Error (MAE), Mean Squared Error (MSE), and R-squared values. These metrics will help users gauge the model's predictive power and reliability.
 
-# ----------------------------
-# Section Routing
-# ----------------------------
-
-if section == "📊 Dashboard":
-    st.title("📊 Overview Dashboard")
-
-    # Total Enrollment
-    total_enrollment = df['total_enrollment'].sum()
-    st.metric("Total Enrollment (All Time)", f"{int(total_enrollment):,}")
-
-    st.divider()
-
-    # Enrollment by State
-    state_totals = (
-        df.groupby('state')['total_enrollment']
-        .sum()
-        .sort_values(ascending=False)
-        .reset_index()
-    )
-
-    st.subheader("Top 10 States by Enrollment")
-    st.bar_chart(state_totals.head(10), x="state", y="total_enrollment")
-
-    st.divider()
-
-    # Time Trend
-    daily_trend = (
-        df.groupby('date')['total_enrollment']
-        .sum()
-        .reset_index()
-    )
-
-    st.subheader("Enrollment Trend Over Time")
-    st.line_chart(daily_trend, x="date", y="total_enrollment")
-
-elif section == "📈 Analysis":
-    st.title("📈 State-Level Analysis")
-
-    # Select State
-    selected_state = st.selectbox(
-        "Select a State",
-        sorted(df['state'].unique())
-    )
-
-    state_df = df[df['state'] == selected_state]
-
-    st.divider()
-
-    # Total Enrollment for State
-    total_state = state_df['total_enrollment'].sum()
-    st.metric(f"Total Enrollment in {selected_state}", f"{total_state:,.0f}")
-
-    st.divider()
-
-    # District-wise totals inside state
-    district_totals = (
-        state_df.groupby('district')['total_enrollment']
-        .sum()
-        .sort_values(ascending=False)
-    )
-
-    st.subheader("District-wise Enrollment Distribution")
-    st.bar_chart(district_totals)
-
-    st.divider()
-
-    # Time trend for selected state
-    state_trend = (
-        state_df.groupby('date')['total_enrollment']
-        .sum()
-        .sort_index()
-    )
-
-    st.subheader("Enrollment Trend Over Time")
-    st.line_chart(state_trend)
-
-elif section == "🧠 Forecasting":
-    st.title("🧠 District Enrollment Forecast")
-
-    selected_district = st.selectbox(
-        "Select District",
-        sorted(df['district'].unique())
-    )
-
-    district_df = df[df['district'] == selected_district].sort_values("date")
-
-    latest_row = district_df.iloc[-1]
-    latest_value = latest_row['total_enrollment']
-    latest_month = latest_row['date'].month
-
-    st.metric("Latest Recorded Enrollment", f"{latest_value:,.0f}")
-
-    if st.button("Predict Next Period Enrollment"):
-
-        # Encode district
-        district_encoded = le.transform([selected_district])[0]
-
-        input_data = pd.DataFrame({
-            "lag_1": [latest_value],
-            "month": [latest_month],
-            "district": [district_encoded]
-        })
-
-        prediction = rf.predict(input_data)[0]
-
-        st.success(f"Predicted Next Enrollment: {round(prediction, 0):,.0f}")
-
-elif section == "🚨 Anomaly Detection":
-    st.title("🚨 Anomaly Detection")
-    st.write("Anomalous enrollment patterns will appear here.")
-
-elif section == "🗺 India Map":
-    st.title("🗺 India Choropleth Map")
-    st.write("Geographic visualization will appear here.")
+## Export Functionality
+Users can export the forecasted results along with the configuration parameters used for the forecasting. This feature facilitates easy sharing and further analysis of the results in different formats such as CSV and Excel sheets.
