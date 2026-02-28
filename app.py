@@ -117,8 +117,35 @@ elif section == "📈 Analysis":
     st.line_chart(state_trend)
 
 elif section == "🧠 Forecasting":
-    st.title("🧠 District Forecasting")
-    st.write("Forecasting interface will appear here.")
+    st.title("🧠 District Enrollment Forecast")
+
+    selected_district = st.selectbox(
+        "Select District",
+        sorted(df['district'].unique())
+    )
+
+    district_df = df[df['district'] == selected_district].sort_values("date")
+
+    latest_row = district_df.iloc[-1]
+    latest_value = latest_row['total_enrollment']
+    latest_month = latest_row['date'].month
+
+    st.metric("Latest Recorded Enrollment", f"{latest_value:,.0f}")
+
+    if st.button("Predict Next Period Enrollment"):
+
+        # Encode district
+        district_encoded = le.transform([selected_district])[0]
+
+        input_data = pd.DataFrame({
+            "lag_1": [latest_value],
+            "month": [latest_month],
+            "district": [district_encoded]
+        })
+
+        prediction = rf.predict(input_data)[0]
+
+        st.success(f"Predicted Next Enrollment: {round(prediction, 0):,.0f}")
 
 elif section == "🚨 Anomaly Detection":
     st.title("🚨 Anomaly Detection")
